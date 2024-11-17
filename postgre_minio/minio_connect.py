@@ -5,6 +5,7 @@ import urllib.request
 from io import BytesIO
 from PIL import Image
 from minio import Minio
+from matplotlib import pyplot as plt
 
 
 class MinioConnect:
@@ -25,3 +26,14 @@ class MinioConnect:
         buckets = self.__client.list_buckets()
         for bucket in buckets[:min(head, len(buckets))]:
             print(bucket.name, bucket.creation_date)
+
+    def print_all_objects(self, bucket_name='b-symbol', head=10):
+        objects = self.__client.list_objects(bucket_name)
+        fig = plt.figure(figsize=(6, 4))
+        ax = fig.add_subplot()
+
+        for idx, obj in enumerate(objects):
+            response = self.__client.get_object(bucket_name, obj._object_name)
+            im = Image.open(response)
+            plt.subplot(1, 3, idx + 1)
+            plt.imshow(im)
